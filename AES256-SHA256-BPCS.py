@@ -67,11 +67,14 @@ def main():
 
         elif choice == '2':
             # Membaca hasil enkripsi dari pengguna
-            ciphertext_hex = input("Masukkan pesan yang ingin didekripsi (dalam format heksadesimal): ")
+            ciphertext_input = input("Masukkan pesan yang ingin didekripsi (dalam format heksadesimal): ")
+
+            # Mendapatkan nilai hash dari ciphertext
+            hash_value = calculate_hash(bytes.fromhex(ciphertext_input)).hex()
 
             # Mengonversi ciphertext dari heksadesimal menjadi bytes
             try:
-                ciphertext_bytes = bytes.fromhex(ciphertext_hex)
+                ciphertext_bytes = bytes.fromhex(ciphertext_input)
             except ValueError:
                 print("Format ciphertext tidak valid. Pastikan ciphertext dalam format heksadesimal.")
                 continue
@@ -91,9 +94,9 @@ def main():
 
             # Menampilkan hasil dekripsi pesan, nilai hash, dan ciphertext
             print("\nDekripsi berhasil dilakukan!")
-            print("Ciphertext: ", ciphertext_hex)
+            print("Ciphertext: ", ciphertext_input)
             print("Plaintext: ", plaintext.decode('utf-8'))
-            print("Hash: ", calculate_hash(iv + plaintext).hex(), "\n")
+            print("Hash: ", hash_value, "\n")
         
         elif choice == '3':
             print("Terima kasih telah menggunakan program ini.")
