@@ -1,5 +1,6 @@
 import itertools
 from logger import log
+from functools import reduce
 
 def get_next_grid_dims(arr, dims):
     """
@@ -24,7 +25,7 @@ def get_next_grid_dims(arr, dims):
     def get_inds(total_length, grid_length):
         lefts = range(0, total_length, grid_length)
         rights = [min(total_length, left+grid_length) for left in lefts]
-        return zip(lefts, rights)
+        return list(zip(lefts, rights))
     xs = get_inds(nrows, rows_per_grid)
     ys = get_inds(ncols, cols_per_grid)
 

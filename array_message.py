@@ -1,5 +1,7 @@
 from math import ceil
 import numpy as np
+from functools import reduce
+
 from logger import log
 from bpcs_steg import conjugate, arr_bpcs_complexity, max_bpcs_complexity, checkerboard
 
@@ -35,7 +37,7 @@ def get_next_message_grid_sized(arr, dims, min_alpha=None):
     if len(arr) < n:
         arr += [0]*(len(arr) - n)
     cur_arr, arr = np.array(arr[:n]), np.array(arr[n:])
-    cur_arr.resize(dims)
+    cur_arr.resize(dims, refcheck=False)
     if min_alpha:
         assert arr_bpcs_complexity(cur_arr) >= min_alpha, '{0} < {1}'.format(arr_bpcs_complexity(cur_arr), min_alpha)
     return cur_arr, arr
@@ -53,7 +55,7 @@ def list_to_grids(arr, dims):
     length_missing = area - rem if rem else 0
     arr += [0]*length_missing
     arr = np.array(arr)
-    ngrids = len(arr) / area
+    ngrids = int(len(arr) / area)
     assert len(arr) % area == 0
     return np.resize(arr, [ngrids, dims[0], dims[1]])
 
@@ -68,7 +70,7 @@ def str_to_grids(message, grid_size):
         """ reads the bits from a str, high bits first """
         bytes = (ord(b) for b in out)
         for b in bytes:
-            for i in reversed(xrange(8)):
+            for i in reversed(range(8)):
                 yield (b >> i) & 1
     bits_list = list(bits(message))
     # return bits_list
@@ -79,7 +81,7 @@ def read_message_grids(messagefile, grid_size):
     reads messagefile as bits and returns as list of grids
     where each grid is a numpy array with shape == grid_size
     """
-    with open(messagefile, 'r') as f:
+    with open(messagefile, 'r', errors='ignore') as f:
         return str_to_grids(f.read(), grid_size)
 
 def grids_to_list(grids):
@@ -105,7 +107,7 @@ def grids_to_str(grids):
     # since the message was initially read by the byte
     # any spares must have been added to create a grid
     bits = bits[:len(bits)-nspare]
-    nbytes = len(bits) / 8
+    nbytes = int(len(bits) / 8)
     bytes = np.resize(np.array(bits), [nbytes, 8])
     byte_to_str = lambda byte: int('0b' + ''.join(str(x) for x in byte.tolist()), 2)
     byte_to_char = lambda byte: chr(byte_to_str(byte))
@@ -115,7 +117,7 @@ def write_message_grids(outfile, grids):
     """
     grids is list of numpy arrays, all of same shape
     """
-    with open(outfile, 'w') as f:
+    with open(outfile, 'w', errors='ignore') as f:
         f.write(grids_to_str(grids))
 
 def get_message_grid_from_grids(mgrids, conj_map):
@@ -144,11 +146,15 @@ def get_n_message_grids(nbits_per_map, ngrids):
     """
     x, y = ngrids-1, 1
     is_valid = lambda x, y, ngrids, nbits_per_map: ngrids==x+y and sum(nbits_per_map[-(y-1):]) < x <= sum(nbits_per_map[-y:])
-    while not is_valid(x, y, ngrids, nbits_per_map):
+    while not is_valid(x, y, ngrids, nbits_per_map) and x > 0:
         x, y = x-1, y+1
+    if x <= 0 and ngrids == 2:
+        # edge case
+        return 1
     assert x > 0
     assert y > 0
     return x
+
 
 def separate_conj_map_from_message(grids, alpha):
     """
@@ -158,7 +164,8 @@ def separate_conj_map_from_message(grids, alpha):
     n.b. some percent of each conj_map grid will be junk bits added to keep complexity above alpha
     """
     if not grids:
-        return [], []
+        log.critical('No message grids found')
+        return [], [], []
 
     get_nignored = lambda grid: len(get_conj_grid_prefix((grid.shape[0], grid.shape[1]), alpha))
     get_nbits_per_map = lambda grid: grid.shape[0]*grid.shape[1] - get_nignored(grid)
@@ -182,6 +189,8 @@ def get_conj_map(cgrids, nbits_per_map):
 
 def write_conjugated_message_grids(outfile, grids, alpha):
     messages, conj_map_grids, nbits_per_map = separate_conj_map_from_message(grids, alpha)
+    if len(conj_map_grids) == 0:
+        return
     conj_map = get_conj_map(conj_map_grids, nbits_per_map)
     message_grids = get_message_grid_from_grids(messages, conj_map)
     write_message_grids(outfile, message_grids)

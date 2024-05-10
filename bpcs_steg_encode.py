@@ -41,7 +41,7 @@ def embed_message_in_vessel(arr, alpha, message, grid_size):
     nmessgs, nmaps, nleft, ngrids = 0, 0, 0, 0
     for dims in get_next_grid_dims(arr, grid_size):
         ngrids += 1
-        grid = arr[dims]
+        grid = arr[tuple(dims)]
         if arr_bpcs_complexity(grid) < alpha:
             nleft += 1
             continue
@@ -69,7 +69,7 @@ def embed_message_in_vessel(arr, alpha, message, grid_size):
         elif status == CONJUGATING:
             nmaps += 1
         assert cur_message.shape == grid.shape
-        arr[dims] = cur_message
+        arr[tuple(dims)] = cur_message
     if message is not None and message.size > 0:
         raise Exception("Could not fit message in arr. Still had {0} bits left".format(message.size))
     elif status != DEAD:
@@ -85,7 +85,7 @@ class BPCSEncodeImage(ActOnImage):
         message_grids = read_message_grids(messagefile, (8,8))
         return embed_message_in_vessel(new_arr, alpha, message_grids, (8,8))
 
-def encode(infile, messagefile, outfile, alpha):
+def encode(infile, messagefile, outfile, alpha=0.45):
     x = BPCSEncodeImage(infile, as_rgb=True, bitplane=True, gray=True, nbits_per_layer=8)
     arr = x.modify(messagefile, alpha)
     x.write(outfile, arr)

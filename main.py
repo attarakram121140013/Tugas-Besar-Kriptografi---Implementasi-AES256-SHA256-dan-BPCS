@@ -169,15 +169,35 @@ def main():
             print("Hash: ", hash_value, "\n")
         
         elif choice == '3':
-            hidden_text = input("Masukkan pesan yang ingin disisipkan: ")
-            alpha = input("Masukkan nilai ambang batas minimum: ")
-            vslfile = '../examples/vessel.png'
-            msgfile = '../examples/message.txt'
+            alpha = input("Masukkan nilai ambang batas minimum (contoh: 0.3): ")
+            alpha = float(alpha)
+
+            vslfile = input("Masukkan path file cover-image (contoh: ../examples/image.jpg): ")
+
+            message = input("Masukkan nama file ciphertext (contoh: ciphertext1.txt): ")
+            msgfile = os.path.join(os.path.dirname(__file__), "Hasil/ciphertext", message)
+
+            encfile_name = input("Masukkan nama file hasil steganografi (contoh: hasil.jpg): ")
+            encfile = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", encfile_name)
+
+            # capacity_name = encfile_name + ".txt"
+            # capacity = encfile = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", capacity_name)
+
+            # capacity(vslfile, capacity, alpha) # check max size of message you can embed in vslfile
+            encode(vslfile, msgfile, encfile, alpha) # embed msgfile in vslfile, write to encfile
             
 
         elif choice == '4':
-            encfile = '../examples/encoded.png'
-            msgfile_decoded = 'tmp.txt'
+            alpha = input("Masukkan nilai ambang batas minimum: ")
+            alpha = float(alpha)
+
+            encfile_name = input("Masukkan nama file hasil steganografi (contoh: hasil.jpg): ")
+            encfile = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", encfile_name)
+
+            msgfile_name = input("Masukkan nama file hasil ekstraksi (contoh: hasil.txt): ")
+            msgfile_decoded = os.path.join(os.path.dirname(__file__), "Hasil/ciphertext", msgfile_name)
+
+            decode(encfile, msgfile_decoded, alpha)
 
         elif choice == '5':
             print("Terima kasih telah menggunakan program ini.")
