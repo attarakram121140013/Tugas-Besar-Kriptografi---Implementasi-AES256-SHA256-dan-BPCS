@@ -1,23 +1,5 @@
-#!/usr/bin/env python
-"""
-BPCS Steganography: encoding/decoding messages hidden in a vessel image
+# Untuk menggabungkan keseluruhan operasi BPCS yang telah dibuat
 
-Source: http://web.eece.maine.edu/~eason/steg/SPIE98.pdf
-
-BEHAVIORS:
-    encoding
-        * expects a vessel image file, message file, and alpha value
-        * hides the contents of a file inside a vessel image
-    decoding
-        * expects a vessel image file, and alpha value
-        * recovers the message stored inside a vessel image
-    capacity
-        * expects a vessel image file and alpha value
-        * assesses the maximum size of a message that could be encoded within the vessel image
-    test
-        * runs the unit tests
-
-"""
 import os.path
 import argparse
 
@@ -25,10 +7,6 @@ from bpcs_steg_decode import decode
 from bpcs_steg_encode import encode
 from bpcs_steg_capacity import capacity
 from bpcs_steg_test import test_all
-
-__author__ = "Jay Hennig"
-__license__ = "MIT"
-__email__ = "mobeets@gmail.com"
 
 parser = argparse.ArgumentParser()
 
@@ -46,6 +24,7 @@ parser.add_argument('-m', '--messagefile', type=str, help='path to message file'
 parser.add_argument('-a', '--alpha', type=float, help='complexity threshold', default=0.45)
 opts = parser.parse_args()
 
+# Fungsi pengecekan file
 def check_file_exists(filename):
     if not os.path.exists(filename):
         parser.error('The file "{0}" could not be found.'.format(filename))

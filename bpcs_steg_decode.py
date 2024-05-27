@@ -1,3 +1,5 @@
+# Melakukan operasi ekstraksi pesan (decode) dari stego-object
+
 import numpy as np
 
 from logger import log
@@ -6,6 +8,7 @@ from act_on_image import ActOnImage
 from array_message import write_conjugated_message_grids
 from bpcs_steg import arr_bpcs_complexity
 
+# Mengeluarkan pesan dari gambar
 def remove_message_from_vessel(arr, alpha, grid_size):
     messages = []
     nfound, nkept, nleft = 0, 0, 0
@@ -24,10 +27,12 @@ def remove_message_from_vessel(arr, alpha, grid_size):
     log.critical('Found {0} out of {1} grids with complexity above {2}'.format(nkept, nfound, alpha))
     return messages
 
+# Kelas decode
 class BPCSDecodeImage(ActOnImage):
     def modify(self, alpha):
         return remove_message_from_vessel(self.arr, alpha, (8,8))
 
+# Pemanggilan fungsi ekstraksi
 def decode(infile, outfile, alpha=0.45):
     x = BPCSDecodeImage(infile, as_rgb=True, bitplane=True, gray=True, nbits_per_layer=8)
     grids = x.modify(alpha)

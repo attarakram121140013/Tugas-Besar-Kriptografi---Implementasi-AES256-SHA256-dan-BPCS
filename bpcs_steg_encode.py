@@ -1,3 +1,5 @@
+# Melakukan operasi penyisipan pesan ke cover-image (encode)
+
 import numpy as np
 
 from logger import log
@@ -7,16 +9,9 @@ from array_grid import get_next_grid_dims
 from bpcs_steg import arr_bpcs_complexity, conjugate
 
 ALIVE, CONJUGATING, DEAD = 0,1,2
+
+# Fungsi yang mengembalikan status dari penyisipan
 def get_message_and_status(message, dims, conjugated, status, alpha):
-    """
-    message is remaining message to be embedded
-    dims is shape of next desired grid
-    conjugated is list of bool, specifying whether each past message grid was conjugated or not
-    status is int
-        DEAD means we shouldn't be embedding any more messages
-        ALIVE means we need the next grid from message
-        CONJUGATING means we need the next grid from conjugated
-    """
     if status == DEAD:
         return None, None, None, DEAD
     elif status == CONJUGATING and len(conjugated) == 0:
@@ -29,13 +24,8 @@ def get_message_and_status(message, dims, conjugated, status, alpha):
         cur, message = get_next_message_grid_sized(message, dims)
         return cur, message, conjugated, ALIVE
 
+# Fungsi penyisipan pesan
 def embed_message_in_vessel(arr, alpha, message, grid_size):
-    """
-    want all o.g. grids to have complexity < alpha
-    if you find one greater than alpha
-    replace it with message
-    if message complexity < alpha, conjugate message
-    """
     conjugated = []
     status = ALIVE
     nmessgs, nmaps, nleft, ngrids = 0, 0, 0, 0
@@ -47,8 +37,6 @@ def embed_message_in_vessel(arr, alpha, message, grid_size):
             continue
         cur_message, message, conjugated, status = get_message_and_status(message, grid.shape, conjugated, status, alpha)
         if status == DEAD:
-            # since there is no more embedding to do, flip the remaining grids you find
-            # so that they are not mistaken for signal grids when decoding
             cur_message = np.zeros(grid.shape, dtype=np.uint8)
             if not arr_bpcs_complexity(cur_message) < alpha:
                 a = arr_bpcs_complexity(grid)
@@ -79,12 +67,14 @@ def embed_message_in_vessel(arr, alpha, message, grid_size):
     log.critical('Embedded {0} message grids and {1} conjugation maps'.format(nmessgs, nmaps))
     return arr
 
+# Kelas penyisipan (encode)
 class BPCSEncodeImage(ActOnImage):
     def modify(self, messagefile, alpha):
         new_arr = np.array(self.arr, copy=True)
         message_grids = read_message_grids(messagefile, (8,8))
         return embed_message_in_vessel(new_arr, alpha, message_grids, (8,8))
 
+# Fungsi untuk pemanggilan penyisipan pesan
 def encode(infile, messagefile, outfile, alpha=0.45):
     x = BPCSEncodeImage(infile, as_rgb=True, bitplane=True, gray=True, nbits_per_layer=8)
     arr = x.modify(messagefile, alpha)

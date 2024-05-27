@@ -8,13 +8,6 @@ from PIL import Image
 from .test_utils import show_html_diff
 
 def digits_in_base_as_tuple(x, base):
-    """
-    x is int
-    base is int
-
-    gets the digits of x in the new base
-    e.g. digits_in_base_as_tuple(20, 2) == (1,0,1,0,0)
-    """
     cur = x
     digs = []
     while cur:
@@ -23,13 +16,8 @@ def digits_in_base_as_tuple(x, base):
     return tuple(reversed(digs))
 
 def get_word_color_map_fcn(all_words):
-    """
-    given a set of words, returns a fcn
-        returning an RGB color
-        where each word is maximally spaced out from other word colors
-    """
     words = set(all_words)
-    words.add(' ') # add space for padding
+    words.add(' ')
     ncolors = 256**3
     ncolors_per_word = ncolors/len(words)
     word_order = sorted(words)
@@ -64,29 +52,12 @@ def adjust_words_and_get_dims(words, verbose=False):
     return words, [desired_side, desired_side, 3]
     
 def str_to_words(txt, keep_spaces=False):
-    # if keep_spaces:
-    #     # want each space to be its own word
-    #     space_first = txt[0] == ' '
-    #     words = str_to_words(txt)
-    #     space_chunks = [x for x in re.split('[^ ]', txt) if x] + [' ']
-    #     final = []
-    #     for word, space in zip(words, space_chunks):
-    #         if space_first:
-    #             for i in range(len(space)):
-    #                 final.append(' ')
-    #             final.append(word)
-    #         else:
-    #             final.append(word)
-    #             for i in range(len(space)):
-    #                 final.append(' ')
-    #     return final
     if keep_spaces:
         words = str_to_words(txt)
         spaces = [x for x in re.split('[^ ]', txt) if x] + [' ']
         return [x for pair in zip(words, spaces) for x in pair]
     else:
         return txt.split()
-        # return re.sub('['+string.punctuation+']', '', txt).split()
 
 def txt_to_uint8_array_by_word(txt):
     words = str_to_words(txt, True)
@@ -97,13 +68,11 @@ def txt_to_uint8_array_by_word(txt):
 
 def adjust_txt_and_get_dims(txt, verbose=False):
     added = 0
-    # pad with 0s to make divisible by 3
     rem = len(txt) % 3
     add = 3-rem if rem else 0
     txt += ' '*add
     added += add
 
-    # pad with 0s to make square
     area = len(txt)/3
     one_side = sqrt(area)
     desired_side = (int(one_side)+1) if one_side > int(one_side) else int(one_side)
@@ -121,16 +90,8 @@ def txt_to_uint8_array_by_char(txt):
     colors = [ord(x) for x in txt]
     return list_to_uint8_array(colors, dims)
 
+# Fungsi Untuk Mendapatkan Gambar Dalam Bentuk Biner
 def image_to_txt(imfile, txtfile):
-    """
-    converts each character to a number
-        assuming the character is ascii
-        and arranges all resulting colors into an array => image
-    note: colors are inserted depth first, meaning
-        e.g. if the first word is 'the'
-            then the first pixel will be (ord('t'), ord('h'), ord('e'))
-                'the' => (116, 104, 101) == #6A6865
-    """
     png = Image.open(imfile).convert('RGB')
     arr = np.array(png)
     dims = arr.size
@@ -139,6 +100,7 @@ def image_to_txt(imfile, txtfile):
     with open(txtfile, 'w') as f:
         f.write(''.join(chars))
 
+# Fungsi Untuk Mengubah Gambar Dari Bentuk Biner ke Bentuk Semula
 def txt_to_image(txtfile, imfile, by_char=True):
     txt = open(txtfile).read()
     if by_char:
@@ -154,11 +116,8 @@ def test_adjust_txt_and_get_dims():
     for val, side in zip(vals, sides):
         assert adjust_txt_and_get_dims(' '*val)[1] == [side, side, 3], val
 
+# Fungsi yang mengetes invertibelitas
 def test_invertibility(txtfile):
-    """
-    roughly, assert txtfile == image_to_txt(txt_to_image(txtfile))
-        ignoring whitespace before and after txt
-    """
     pngfile = txtfile.replace('.txt', '.png')
     txt_to_image(txtfile, pngfile)
     new_txtfile = txtfile.replace('.', '_new.')
@@ -185,7 +144,3 @@ if __name__ == '__main__':
     outfiles = [base_dir + outfile + '.txt' for outfile in outfiles]
     for infile,outfile in zip(infiles, outfiles):
         txt_to_image(infile, outfile, by_char)
-    
-    # infile = '/Users/mobeets/Desktop/tmp2.png'
-    # outfile = '/Users/mobeets/Desktop/tmp2.txt'
-    # image_to_txt(infile, outfile, by_char)

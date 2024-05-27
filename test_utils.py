@@ -1,3 +1,5 @@
+# Melakukan pengetesan utilitas dari program
+
 import os
 from difflib import HtmlDiff
 from tempfile import mkstemp

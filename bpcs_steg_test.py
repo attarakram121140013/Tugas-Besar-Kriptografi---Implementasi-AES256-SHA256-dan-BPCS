@@ -1,3 +1,5 @@
+# Melakukan test kepada operasi yang dilaksanakan dalam BPCS
+
 import numpy as np
 
 from act_on_image import ActOnImage
@@ -62,7 +64,7 @@ def test_get_next_grid_dims():
         assert dims == ans[i]
 
 def test_grids_to_str_invertibility():
-    message = 'hello there asfasdf asdfasdf asdfasdf asd,f asd; asdf !fdf'
+    message = 'hello there my name is alvin akram kumala bangun, i work as software engineer in this institution'
     grids = str_to_grids(message, (8,8))
     message_out = grids_to_str(grids)
     assert message_out[:len(message)] == message

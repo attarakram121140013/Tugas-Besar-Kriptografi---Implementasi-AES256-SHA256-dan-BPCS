@@ -1,3 +1,5 @@
+# Program utama yang menampilkan menu pilihan operasi kepada pengguna
+
 import os
 import hashlib
 from Crypto.Cipher import AES
@@ -206,35 +208,42 @@ def main():
             print("Old Hash : ", hash_input)
         
         elif choice == '3':
+            # Menambahkan nilai ambang untuk operasi BPCS
             alpha = input("Masukkan nilai ambang batas minimum (contoh: 0.3): ")
             alpha = float(alpha)
 
+            # Memilih gambar cover-image
             vslfile = input("Masukkan path file cover-image (contoh: ../examples/image.jpg): ")
 
+            # Memilih file pesan yang akan disisipkan ke dalam gambar
             message = input("Masukkan nama file ciphertext (contoh: ciphertext1.txt): ")
             msgfile = os.path.join(os.path.dirname(__file__), "Hasil/ciphertext", message)
 
-            encfile_name = input("Masukkan nama file hasil steganografi (contoh: hasil.jpg): ")
+            # Memberikan nama untuk file hasil penyisipan
+            encfile_name = input("Masukkan nama file hasil steganografi (contoh: hasil.png): ")
             encfile = os.path.join(os.path.dirname(__file__), "Hasil\steganografi", encfile_name)
 
-            # capacity_name = encfile_name + ".txt"
-            # capacity = encfile = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", capacity_name)
+            capacity_name = encfile_name + "capacity.txt"
+            capacity = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", capacity_name)
 
-            # capacity(vslfile, capacity, alpha) # check max size of message you can embed in vslfile
-            encode(vslfile, msgfile, encfile, alpha) # embed msgfile in vslfile, write to encfile
+            capacity(vslfile, capacity, alpha) # Mengecek ukuran pesan yang dapat disisipkan
+            encode(vslfile, msgfile, encfile, alpha) # Penyisipan pesan dengan BPCS
             
 
         elif choice == '4':
+            # Menambahkan nilai ambang untuk operasi BPCS
             alpha = input("Masukkan nilai ambang batas minimum: ")
             alpha = float(alpha)
 
+            # Memilih file stego-image
             encfile_name = input("Masukkan nama file hasil steganografi (contoh: hasil.jpg): ")
             encfile = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", encfile_name)
 
+            # Memasukkan nama untuk file hasil ekstraksi
             msgfile_name = input("Masukkan nama file hasil ekstraksi (contoh: hasil.txt): ")
             msgfile_decoded = os.path.join(os.path.dirname(__file__), "Hasil/ciphertext", msgfile_name)
 
-            decode(encfile, msgfile_decoded, alpha)
+            decode(encfile, msgfile_decoded, alpha) # Melakukan ekstraksi pesan tersembunyi dari file stego-image
 
         elif choice == '5':
             print("Terima kasih telah menggunakan program ini.")

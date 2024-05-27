@@ -1,3 +1,5 @@
+# Melakukan logging pada operasi BPCS
+
 import logging
 
 def get_log():
