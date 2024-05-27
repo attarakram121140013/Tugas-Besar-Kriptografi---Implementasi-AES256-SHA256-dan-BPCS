@@ -65,6 +65,36 @@ def get_next_ciphertext_filename():
 
     return next_filename
 
+def get_next_hash_filename():
+    program_location = os.path.dirname(__file__)
+    directory = os.path.join(program_location, r"Hasil\ciphertext")
+
+    # Mengecek apakah direktori ada atau tidak
+    if not os.path.exists(directory):
+        # Jika tidak ada, membuat direktori tersebut
+        os.makedirs(directory, exist_ok=True)
+
+    # Mendapatkan daftar file dalam direktori
+    files = os.listdir(directory)
+
+    # Filter hanya file yang dimulai dengan "ciphertext"
+    ciphertext_files = [file for file in files if file.startswith("hash")]
+
+    # Jumlah file ciphertext yang sudah ada
+    num_existing_files = len(ciphertext_files)
+
+    # Membuat nama file untuk ciphertext berikutnya
+    next_filename = f"hash{num_existing_files + 1}.txt"
+
+    return next_filename
+
+#Fungsi mengecek kesamaan nilai hash
+def check_hash(hash1, hash2):
+    if hash1 == hash2:
+        return "Nilai hash sesuai!"
+    else:
+        return "Nilai hash tidak sesuai!"
+
 # Fungsi untuk menyimpan hasil enkripsi ke dalam file txt
 def save_cipher_to_file(ciphertext, filename):
     try:
@@ -132,12 +162,17 @@ def main():
             # Menyimpan hasil enkripsi ke file txt
             filename = get_next_ciphertext_filename()
             save_cipher_to_file(iv.hex() + ciphertext.hex(), filename)
+            hashfilename = get_next_hash_filename()
+            save_cipher_to_file(calculate_hash(iv + ciphertext).hex(), hashfilename)
 
 
         elif choice == '2':
             # Membaca ciphertext dari pengguna
             filename_ciphertext = input("Masukkan nama file yang akan di dekripsi: ")
             ciphertext_input = read_text_file(filename_ciphertext)
+
+            filename_hash = input("Masukkan nama file hash yang sesuai: ")
+            hash_input = read_text_file(filename_hash)
 
             # Mendapatkan nilai hash dari ciphertext
             hash_value = calculate_hash(bytes.fromhex(ciphertext_input)).hex()
@@ -166,7 +201,9 @@ def main():
             print("\nDekripsi berhasil dilakukan!")
             print("Ciphertext: ", ciphertext_input)
             print("Plaintext: ", plaintext.decode('utf-8'))
-            print("Hash: ", hash_value, "\n")
+            print(check_hash(hash_value, hash_input))
+            print("New Hash : ", hash_value)
+            print("Old Hash : ", hash_input)
         
         elif choice == '3':
             alpha = input("Masukkan nilai ambang batas minimum (contoh: 0.3): ")
@@ -178,7 +215,7 @@ def main():
             msgfile = os.path.join(os.path.dirname(__file__), "Hasil/ciphertext", message)
 
             encfile_name = input("Masukkan nama file hasil steganografi (contoh: hasil.jpg): ")
-            encfile = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", encfile_name)
+            encfile = os.path.join(os.path.dirname(__file__), "Hasil\steganografi", encfile_name)
 
             # capacity_name = encfile_name + ".txt"
             # capacity = encfile = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", capacity_name)
