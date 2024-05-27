@@ -22,27 +22,9 @@ def hist(infile):
     base = sorted(list(set(words)))
     inds = [base.index(word) for word in words]
 
-    # colors = list(get_word_colors(infile))
-    # reds = [r for word, (r,g,b) in colors if word.strip()]
-    # greens = [g for word, (r,g,b) in colors if word.strip()]
-    # blues = [b for word, (r,g,b) in colors if word.strip()]
-
-    # popular = [word for word, (r,g,b) in colors if g == 135]
-    # print ', '.join(popular)
-    # popular = [word for word, (r,g,b) in colors if b == 163]
-    # print ', '.join(popular)
-    # popular = [word for word, (r,g,b) in colors if r == 17]
-    # print ', '.join(popular)
-
     fig = plt.figure()
     ax = fig.add_subplot(111)
     n, bins, patches = ax.hist(inds, len(base), facecolor='red', alpha=0.75)
-    # ax = fig.add_subplot(311)
-    # n, bins, patches = ax.hist(reds, 256, facecolor='red', alpha=0.75)
-    # ax = fig.add_subplot(312)
-    # n, bins, patches = ax.hist(greens, 256, facecolor='green', alpha=0.75)
-    # ax = fig.add_subplot(313)
-    # n, bins, patches = ax.hist(blues, 256, facecolor='blue', alpha=0.75)
     plt.show()
 
 def plot(infile):

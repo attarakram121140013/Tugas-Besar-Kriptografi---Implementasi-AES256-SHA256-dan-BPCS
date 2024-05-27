@@ -129,6 +129,12 @@ def read_text_file(filename):
         print("Terjadi kesalahan saat membaca file:", str(e))
         return None
 
+# Fungsi menghitung nilai PSNR
+def calculate_psnr(original_image_path, embedded_image_path):
+    original = cv2.cvtColor(cv2.imread(original_image_path), cv2.COLOR_RGB2BGR)
+    embedded = cv2.cvtColor(cv2.imread(embedded_image_path), cv2.COLOR_RGB2BGR)
+    psnr_value = cv2.PSNR(original, embedded)
+    return psnr_value
 
 # Fungsi utama
 def main():
@@ -138,9 +144,10 @@ def main():
         print("2. Dekripsi pesan")
         print("3. Sisipkan pesan ke gambar")
         print("4. Ekstraksi pesan dari gambar")
-        print("5. Keluar")
+        print("5. Hitung Nilai PSNR Steganografi")
+        print("6. Keluar")
         
-        choice = input("Masukkan pilihan (1/2/3/4/5): ")
+        choice = input("Masukkan pilihan (1/2/3/4/5/6): ")
         
         if choice == '1':
             # Membaca pesan dari pengguna
@@ -221,12 +228,9 @@ def main():
 
             # Memberikan nama untuk file hasil penyisipan
             encfile_name = input("Masukkan nama file hasil steganografi (contoh: hasil.png): ")
-            encfile = os.path.join(os.path.dirname(__file__), "Hasil\steganografi", encfile_name)
+            encfile = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", encfile_name)
 
-            capacity_name = encfile_name + "capacity.txt"
-            capacity = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", capacity_name)
-
-            capacity(vslfile, capacity, alpha) # Mengecek ukuran pesan yang dapat disisipkan
+            capacity(vslfile, alpha) # Mengecek ukuran pesan yang dapat disisipkan
             encode(vslfile, msgfile, encfile, alpha) # Penyisipan pesan dengan BPCS
             
 
@@ -246,11 +250,21 @@ def main():
             decode(encfile, msgfile_decoded, alpha) # Melakukan ekstraksi pesan tersembunyi dari file stego-image
 
         elif choice == '5':
+            # Menginputkan path cover-image dan nama file steganografi
+            cover_path = input("Masukkan path file cover-image: ")
+            stegofile = input("Masukkan nama file hasil steganografi: ")
+            stego_path = os.path.join(os.path.dirname(__file__), "Hasil/steganografi", stegofile)
+
+            # Mendapatkan nilai PSNR dan menampilkannya
+            psnr_value = calculate_psnr(cover_path, stego_path)
+            print(f"PSNR antara file original and file hasil steganografi adalah : {psnr_value} dB")
+
+        elif choice == '6':
             print("Terima kasih telah menggunakan program ini.")
             break
         
         else:
-            print("Pilihan tidak valid. Silakan pilih 1, 2, atau 3.")
+            print("Pilihan tidak valid. Silakan pilih 1, 2, 3, 4, 5, atau 6.")
 
 if __name__ == "__main__":
     main()
